@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2018 Matthew Universe
+ * Copyright (C) 2018 Mattehew Universe
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,7 +102,7 @@ public class USoundBoard implements NativeKeyListener{
     private int tempKey = NativeKeyEvent.VC_V;
     private int hotkeyMod = NativeKeyEvent.CTRL_L_MASK;
     private boolean capture = false;
-    private long timeoutDelay = 3000;
+    private final long timeoutDelay = 3000;
     private String combo;
     private Category curCategory;
 
@@ -133,35 +133,41 @@ public class USoundBoard implements NativeKeyListener{
     }
     
     public USoundBoard(SBSettings settings){
-        //TODO: load the last used sb instead of making a test one every time
-        //create a default soundboard with my shitty test sounds ;)
         //load in default settings
         this.settings = settings;
+        this.settings.loadDefaults();
         loadSettings();
         hotKey = settings.getHotkey();
         hotkeyMod = settings.getHotkeyMod();
         String sbPath = settings.getSoundboard();
         if(sbPath != null && sbPath.length() > 0){
             File f = new File(sbPath);
-            if(f.exists()){
-                SoundBoard sb;
-                try {
-                    sb = SoundBoard.readFromFile(f);
-                    soundBoardFile = f;
-                    curSoundBoard = sb;
-                    curCategory = curSoundBoard.getRoot();
-                } catch (IOException ex) {
-                    Logger.getLogger(USoundBoard.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+            loadSBFile(f);
         }
         if(curSoundBoard == null){
-            SoundBoard sb = new SoundBoard("Test Soundboard");
-            Category g = new Category(NativeKeyEvent.VC_G);
-            sb.getRoot().addEntry(g);
-            g.addEntry(new Sound(NativeKeyEvent.VC_G, "Blanc/ItsOnNow.wav"));
-            curSoundBoard = sb;
+            //try to load the test board
+            File tb = new File(System.getProperty("user.dir")+File.separator
+                    +"UsbTestBoard"+File.separator+"TestBoard.usb");
+            if(!loadSBFile(tb)){
+                //lets just build it from scratch then...
+            }
         }
+    }
+    
+    private boolean loadSBFile(File f){
+        boolean loaded = false;
+        if(f.exists()){
+            try{
+                SoundBoard sb = SoundBoard.readFromFile(f);
+                soundBoardFile = f;
+                curSoundBoard = sb;
+                curCategory = curSoundBoard.getRoot();
+                loaded = true;
+            } catch(IOException ex){
+                LOGGER.log(Level.SEVERE, null, ex);
+            }
+        }
+        return loaded;
     }
     
     public void start(){

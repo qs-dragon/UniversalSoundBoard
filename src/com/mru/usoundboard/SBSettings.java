@@ -33,7 +33,6 @@ public class SBSettings extends Properties{
     
     public SBSettings(){
         super();
-        loadDefaults();
     }
     
     public void loadDefaults(){
@@ -68,6 +67,9 @@ public class SBSettings extends Properties{
      */
     public Mixer.Info getMixer(){
         String val = getProperty(MIXER);
+        if(val == null || val.length() == 0){
+            return null;
+        }
         String[] parts = val.split(",");
         for(Mixer.Info info : AudioSystem.getMixerInfo()){
             if(info.getName().equals(parts[0]) && info.getVendor().equals(parts[1])

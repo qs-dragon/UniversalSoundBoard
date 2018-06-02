@@ -10,6 +10,11 @@
 <project name="USoundBoard" default="default" basedir=".">
     <description>Builds, tests, and runs the project USoundBoard.</description>
     <import file="nbproject/build-impl.xml"/>
+    <target name="-post-compile">
+        <copy todir="${dist.dir}/UsbTestBoard/" >  
+            <fileset dir="UsbTestBoard"/>  
+        </copy> 
+    </target>
     <!--
 
     There exist several targets which are by default empty and which can be 
